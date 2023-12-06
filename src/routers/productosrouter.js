@@ -4,11 +4,27 @@ import { Producto } from '../models/productos.mongoose.js'
 export const productosRouter = Router()
 
 productosRouter.get('/', async (req, res) => {
-    const filtro = (!req.query.filtro) ? '' : { category: req.query.filtro }
-    const itemsPorPagina = (!req.query.itemsPorPagina) ? 10 : req.query.itemsPorPagina
-    const pagina = (!req.query.pagina) ? 1 : req.query.pagina
-    const paginado = await Producto.paginate( filtro , { limit: itemsPorPagina, page: pagina })
-    res.json (paginado)
+    let opciones = {}
+    const filtro = (!req.query.filtro) ?  '' : { category: req.query.filtro }
+    const itemsPorPagina = (!req.query.itemsPorPagina) ? opciones = { limit: 10, ...opciones } : opciones = { limit: req.query.itemsPorPagina, ...opciones }
+    const pagina = (!req.query.pagina) ? opciones = { page: 1, ...opciones } : opciones = { page: req.query.pagina, ...opciones }
+    const orden = (!req.query.order) ? '' : opciones = { sort: { 'price': req.query.order }, ...opciones }
+    console.log(opciones)
+    const paginado = await Producto.paginate(filtro, opciones)
+    const resoults = {
+        status: 'success',
+        payload: paginado.docs,
+        totalPages: paginado.totalPages,
+        prevPage: paginado.prevPage,
+        nextPage: paginado.nextPage,
+        page: paginado.page,
+        hasPrevPage: paginado.hasPrevPage,
+        hasNextPage: paginado.hasNextPage,
+        prevLink: '',
+        nextLink: ''
+    }
+
+    res.json(resoults)
     // const productos = await Producto.find()
     // res.json(productos)
 })
@@ -34,7 +50,7 @@ productosRouter.put('/:pid', async (req, res) => {
     if (req.body.code) {
         return res.status(400).json(`No se puede modificar el código del producto`)
     }
-    
+
     const updProducto = await Producto.findByIdAndUpdate(
         req.params.pid,
         { $set: req.body },

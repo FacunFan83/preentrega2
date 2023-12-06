@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { Producto } from '../models/productos.mongoose.js'
+import { Carrito } from '../models/carrito.mongoose.js'
 
 export const initRouter = Router()
 
@@ -37,6 +38,8 @@ const dataSet = [
 ] 
 
 initRouter.get('/', async (req, res) => {
+    console.log('queriendo borrar')
+    await Carrito.deleteMany()
     await Producto.deleteMany()
     await Producto.insertMany(dataSet)
     res.send('Base de datos creada')
