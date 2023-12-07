@@ -20,6 +20,7 @@ function getProducts(filtros) {
         .then(data => {
             console.log(data)
             const targetDOM = document.getElementById('contenedorProductos')
+            targetDOM.addEventListener('click', addProduct)
             targetDOM.innerHTML = ''
             for (el of data.payload) {
                 const newElement = document.createElement('tr')
@@ -58,8 +59,8 @@ async function navSetup(opcionesPaginacion) {
     targetDOM.innerHTML = ''
     let contentDOM
     // PrevPage
-    const prevPageDisabled = (hasPrevPage) ? {status: '', goto: 'm'+prevPage} : {status: 'disabled', goto: 'none'}
-    const nextPageDisabled = (hasNextPage) ? {status: '', goto: 'm'+nextPage} : {status: 'disabled', goto: 'none'}
+    const prevPageDisabled = (hasPrevPage) ? { status: '', goto: 'm' + prevPage } : { status: 'disabled', goto: 'none' }
+    const nextPageDisabled = (hasNextPage) ? { status: '', goto: 'm' + nextPage } : { status: 'disabled', goto: 'none' }
     contentDOM = `<li class="page-item ${prevPageDisabled.status}">
                  <a class="page-link" href='#' id=${prevPageDisabled.goto}>Anterior</a>
                  </li>
@@ -78,13 +79,13 @@ async function navSetup(opcionesPaginacion) {
     </li>
     `
     targetDOM.innerHTML += contentDOM
-    
+
 }
 
 function pageMove(e) {
     const pagina = e.target.id.substring(1)
     if (pagina) {
-        setFilters(e ,pagina)
+        setFilters(e, pagina)
     }
 }
 
@@ -141,13 +142,48 @@ function setFilters(e, page) {
     const validaFiltro = (pagesPerView || categoryPerView || orderPerView || page) ? '?' : false
     const optFiltro = []
     if (validaFiltro) {
-        if (pagesPerView) {optFiltro.push (`itemsPorPagina=${pagesPerView}`)}
-        if (orderPerView) {optFiltro.push(`order=${orderPerView}`)}
-        if (categoryPerView) {optFiltro.push(`filtro=${categoryPerView}`)}
-        if (page) {optFiltro.push(`pagina=${page}`)}
+        if (pagesPerView) { optFiltro.push(`itemsPorPagina=${pagesPerView}`) }
+        if (orderPerView) { optFiltro.push(`order=${orderPerView}`) }
+        if (categoryPerView) { optFiltro.push(`filtro=${categoryPerView}`) }
+        if (page) { optFiltro.push(`pagina=${page}`) }
     }
     const strFiltro = '?' + optFiltro.join('&')
     console.log(strFiltro)
     getProducts(strFiltro)
+
+}
+
+function addProduct(e) {
+    const idProducto = e.target.id
+    const activeCart = JSON.parse(localStorage.getItem('carrito'))
+    if (!idProducto) { return }
+    if (!activeCart) { return alert('No hay carrito seleccionado') }
+    const rutaFetchPut = `http://localhost:8080/api/carritos/${activeCart}/add/${idProducto}` // /:cid/add/:pid
+    fetch (rutaFetchPut, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+    .then (resp => resp.json())
+    .then (data => {
+        console.log(data)
+        if (data.message === 'Producto Agregado') {
+            Toastify({
+                text: "Producto agregado",
+                style: {
+                  background: "linear-gradient(to right, #00b09b, #96c93d)",
+                }
+              }).showToast();
+        } else if (data.message === 'Producto Actualizado') {
+            Toastify({
+                text: "Producto actualizado",
+                style: {
+                  background: "linear-gradient(to right, #898910, #FAFA08)",
+                }
+              }).showToast();
+
+        }
+    })
 
 }

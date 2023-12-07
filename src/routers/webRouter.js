@@ -9,3 +9,7 @@ webRouter.get ('/', (req, res) => {
 webRouter.get('/productos', (req, res) => {
     res.render('productos')
 })
+
+webRouter.get('/carrito', (req, res) => {
+    res.render('carrito')
+})

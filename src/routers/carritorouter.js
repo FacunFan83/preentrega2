@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { Carrito } from '../models/carrito.mongoose.js'
-import mongoose from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
 import { Producto } from '../models/productos.mongoose.js'
 
 export const carritoRouter = Router()
@@ -13,33 +13,38 @@ carritoRouter.get('/', async (req, res) => {
 
 carritoRouter.get('/carritosActivos', async (req, res) => {
 
-    const carritos = await Carrito.aggregate ([
-        { $match: { "status": true }  },
+    const carritos = await Carrito.aggregate([
+        { $match: { "status": true } },
         { $unwind: "$carrito" },
-        { $lookup: {
-            from: "products",
-            localField: "carrito.productID",
-            foreignField: "_id",
-            as: 'datosProducto'
-        }},
-        { $unwind: "$datosProducto"},
-        { $group: {
-            _id: "$_id",
-            total: { $sum: { $multiply: ["$carrito.cant", "$datosProducto.price"] }}
-        }},
-        { $project: {
-            _id: 1,
-            total: 1
-        }}
+        {
+            $lookup: {
+                from: "products",
+                localField: "carrito.productID",
+                foreignField: "_id",
+                as: 'datosProducto'
+            }
+        },
+        { $unwind: "$datosProducto" },
+        {
+            $group: {
+                _id: "$_id",
+                total: { $sum: { $multiply: ["$carrito.cant", "$datosProducto.price"] } }
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                total: 1
+            }
+        }
 
     ])
-    console.log(carritos)
     res.json(carritos)
 })
 
 
 carritoRouter.get('/:cid', async (req, res) => {
-    const carritoPorId = await Carrito.findById(req.params.cid)
+    const carritoPorId = await Carrito.findById(req.params.cid).populate('carrito.productID')
     if (!carritoPorId) {
         return res.status(404).json({ message: 'El carrito buscado no existe en la base de datos' })
     }
@@ -55,44 +60,42 @@ carritoRouter.post('/', async (req, res) => {
     }
 })
 
-carritoRouter.put('/:cid/add/:pid', async (req, res) => {
-    const addProduct = await Carrito.findByIdAndUpdate(
+carritoRouter.put('/:cid/producto/:pid', async (req, res) => {
+    const cant = req.body.cant
+    console.log(cant)
+    const producto = await Carrito.findByIdAndUpdate(
         req.params.cid,
-        { $push: { carrito: { productID: req.params.pid, cant: 1 } } },
+        { $set: { "carrito.$[elem].cant": cant }},
+        { arrayFilters: [{ "elem._id": req.params.pid }]},
         { new: true }
-    ).lean()
-    res.json(addProduct)
-    // if (!req.params.pid) {
-    //     return res.status(401).json('Debe seleccionar un producto')
-    // }
+    )
+    res.status(201).json({ message: 'Producto Actualizado', info: producto})
+})
 
-    // const productoExiste = await Carrito.find(
-    //     {
-    //         _id: req.params.cid,
-    //         carrito: { $elemMatch: { producto: req.params.pid } }
-    //     })
+carritoRouter.put('/:cid/add/:pid', async (req, res) => {
+    const productExist = await Carrito.find({
+        _id: req.params.cid,
+        carrito: { $elemMatch: { productID: req.params.pid } }
+    })
 
-    // if (productoExiste.length === 0) {
-    //     const addProductToCart = await Carrito.findByIdAndUpdate(
-    //         req.params.cid,
-    //         { $push: { carrito: { producto: req.params.pid, cant: 1 } } },
-    //         { new: true }
-    //     )
-    //     if (!addProductToCart) {
-    //         return res.status(401).json(`El carrito con ID ${req.params.cid} no existe`)
-    //     }
-    //     res.status(201).json({ message: 'Producto Agregado', info: addProductToCart })
-    //     console.log(addProductToCart)
-    // } else {
-    //     const updProduct = await Carrito.findByIdAndUpdate(
-    //         req.params.cid,
-    //         { $inc: { "carrito.$[elem].cant": 1 } },
-    //         { arrayFilters: [{ "elem.producto": req.params.pid }] },
-    //         { new: true }
-    //     )
-    //     console.log(updProduct)
-    //     res.status(201).json({ message: 'Producto Actualizado', info: updProduct })
-    // }
+    if (productExist.length > 0) {
+        console.log('producto ya existe')
+        const updProduct = await Carrito.findByIdAndUpdate(
+            req.params.cid,
+            { $inc: { "carrito.$[elem].cant": 1 }},
+            { arrayFilters: [{ "elem.productID": req.params.pid }]},
+            { new: true }
+        )
+        console.log(updProduct)
+        res.status(201).json({ message: 'Producto Actualizado', info: updProduct })        
+    } else {
+        const addProduct = await Carrito.findByIdAndUpdate(
+            req.params.cid,
+            { $push: { carrito: { productID: req.params.pid, cant: 1 } } },
+            { new: true }
+        ).lean()
+        res.status(201).json({ message: 'Producto Agregado', info: addProduct })        
+    }
 })
 
 carritoRouter.delete('/:cid', async (req, res) => {
@@ -107,12 +110,15 @@ carritoRouter.delete('/:cid', async (req, res) => {
 })
 
 carritoRouter.delete('/:cid/producto/:pid', async (req, res) => {
+    // console.log(req.params.pid)
+    // const objectId = new mongoose.Types.ObjectId(req.params.pid)
     const delProdInCarrito = await Carrito.findByIdAndUpdate(
         req.params.cid,
-        { $pull: { carrito: { productId: req.params.pid } } },
+        { $pull: { carrito: { _id: req.params.pid } } },
         { new: true }
     )
     if (!delProdInCarrito) {
         return res.status(401).json(`El producto con ID ${req.params.pid} no existe en el carrito ${req.params.cid}`)
     }
+    res.status(201).json({ message: 'Producto Eliminado del carrito', info: delProdInCarrito })
 })
