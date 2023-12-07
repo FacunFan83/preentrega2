@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto'
 
 const schemaCarrito = new Schema({
     _id: { type: String, default: randomUUID },
+    status: { type: Boolean, default: true},
     carrito: [{ 
         productID: { type: String, ref: 'products' }, 
         cant: { type: Number }

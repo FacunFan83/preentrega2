@@ -11,6 +11,7 @@ productosRouter.get('/', async (req, res) => {
     const orden = (!req.query.order) ? '' : opciones = { sort: { 'price': req.query.order }, ...opciones }
     console.log(opciones)
     const paginado = await Producto.paginate(filtro, opciones)
+    console.log(paginado)
     const resoults = {
         status: 'success',
         payload: paginado.docs,
@@ -27,6 +28,13 @@ productosRouter.get('/', async (req, res) => {
     res.json(resoults)
     // const productos = await Producto.find()
     // res.json(productos)
+})
+
+productosRouter.get('/cat/', async (req, res) => {
+    const categoriasProductos = await Producto.aggregate([
+        { $group: {_id: "$category"}}
+    ])
+    res.json (categoriasProductos)
 })
 
 productosRouter.get('/:pid', async (req, res) => {

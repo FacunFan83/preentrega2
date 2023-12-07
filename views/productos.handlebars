@@ -3,38 +3,80 @@
         <div class="card-header">
             Listado de Productos
         </div>
-        <div class="card-body">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">Id</th>
-                        <th scope="col">Titulo</th>
-                        <th scope="col">Descripcion</th>
-                        <th scope="col">Categoria</th>
-                        <th scope="col">Precio</th>
-                        <th scope="col">Stock</th>
-                    </tr>
-                </thead>
-                <tbody id="contenedorProductos">
-                </tbody>
-            </table>
-        </div>
-        <div class="card-footer text-body-secondary">
-            <nav aria-label="Page navigation example">
-                <ul class="pagination justify-content-end" id="navBar">
-                    <li class="page-item disabled">
-                        <a class="page-link">Anterior</a>
-                    </li>
-                    <li class="page-item"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item">
-                        <a class="page-link" href="#">Siguiente</a>
-                    </li>
-                </ul>
-            </nav>
+        <!-- FILTROS -->
+        <div class="accordion accordion-flush" id="accordionFlushExample">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                        Filtros
+                    </button>
+                </h2>
+                <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                    <div class="accordion-body">
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <th>
+                                        <!-- CANTIDAD DE PAGINAS A MOSTRAR -->
+                                        Productos por página
+                                        <select class="form-select" aria-label="Default select example" id="comboPages">
+                                        </select>
+                                    </th>
+
+                                    <th>
+                                        <!-- CATEGORIA A MOSTRAR -->
+                                        Categoría
+                                        <select class="form-select" aria-label="Default select example"
+                                            id="comboCategorias"> </select>
+                                    </th>
+                                    <th>
+                                        <!-- ORDEN POR PRECIO -->
+                                        Orden
+                                        <select class="form-select" aria-label="Default select example" id="comboOrden">
+                                        </select>
+                                    </th>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button type="button" class="btn btn-primary" id="applyFilter">Filtrar</button>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Producto</th>
+                            <th scope="col">Descripción</th>
+                            <th scope="col">Categoria</th>
+                            <th scope="col">Precio</th>
+                            <th scope="col">Stock</th>
+                            <th scope="col">Agregar al Carrito</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contenedorProductos">
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer text-body-secondary">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-end" id="navBar">
+                        <li class="page-item disabled">
+                            <a class="page-link">Anterior</a>
+                        </li>
+                        <li class="page-item"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Siguiente</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
         </div>
     </div>
-</div>
 
-<script defer type="text/javascript" src="/static/js/index.js"></script>
+    <script defer type="text/javascript" src="/static/js/index.js"></script>
