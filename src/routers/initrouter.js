@@ -38,7 +38,6 @@ const dataSet = [
 ] 
 
 initRouter.get('/', async (req, res) => {
-    console.log('queriendo borrar')
     await Carrito.deleteMany()
     await Producto.deleteMany()
     await Producto.insertMany(dataSet)

@@ -34,17 +34,14 @@ function loadCarritos() {
                 </div>
                 `
             }
-            console.log(data)
         })
 }
 
 
 function selectCarrito(e) {
     if (e.target.id != '') {
-        console.log(e.target.id)
         document.getElementById('carritoActivo').value = e.target.id
         localStorage.setItem('carrito', JSON.stringify(e.target.id))
-        console.log(document.getElementById('carritoActivo').value)
         window.location = '/productos'
     }
 }
@@ -56,7 +53,6 @@ function newCarrito(e) {
         .then(resp => resp.json())
         .then(data => {
             const newID = data._id
-            console.log(newID)
             localStorage.setItem('carrito', JSON.stringify(newID))
             window.location = '/productos'
         })

@@ -62,7 +62,6 @@ carritoRouter.post('/', async (req, res) => {
 
 carritoRouter.put('/:cid/producto/:pid', async (req, res) => {
     const cant = req.body.cant
-    console.log(cant)
     const producto = await Carrito.findByIdAndUpdate(
         req.params.cid,
         { $set: { "carrito.$[elem].cant": cant }},
@@ -73,20 +72,23 @@ carritoRouter.put('/:cid/producto/:pid', async (req, res) => {
 })
 
 carritoRouter.put('/:cid/add/:pid', async (req, res) => {
+    const carritoExist = await Carrito.findById(req.params.cid)
+    if (!carritoExist) {
+        res.json({message: "not found"})
+        return
+    }
     const productExist = await Carrito.find({
         _id: req.params.cid,
         carrito: { $elemMatch: { productID: req.params.pid } }
     })
 
     if (productExist.length > 0) {
-        console.log('producto ya existe')
         const updProduct = await Carrito.findByIdAndUpdate(
             req.params.cid,
             { $inc: { "carrito.$[elem].cant": 1 }},
             { arrayFilters: [{ "elem.productID": req.params.pid }]},
             { new: true }
         )
-        console.log(updProduct)
         res.status(201).json({ message: 'Producto Actualizado', info: updProduct })        
     } else {
         const addProduct = await Carrito.findByIdAndUpdate(
@@ -110,8 +112,6 @@ carritoRouter.delete('/:cid', async (req, res) => {
 })
 
 carritoRouter.delete('/:cid/producto/:pid', async (req, res) => {
-    // console.log(req.params.pid)
-    // const objectId = new mongoose.Types.ObjectId(req.params.pid)
     const delProdInCarrito = await Carrito.findByIdAndUpdate(
         req.params.cid,
         { $pull: { carrito: { _id: req.params.pid } } },

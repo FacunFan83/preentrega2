@@ -9,9 +9,7 @@ productosRouter.get('/', async (req, res) => {
     const itemsPorPagina = (!req.query.itemsPorPagina) ? opciones = { limit: 10, ...opciones } : opciones = { limit: req.query.itemsPorPagina, ...opciones }
     const pagina = (!req.query.pagina) ? opciones = { page: 1, ...opciones } : opciones = { page: req.query.pagina, ...opciones }
     const orden = (!req.query.order) ? '' : opciones = { sort: { 'price': req.query.order }, ...opciones }
-    console.log(opciones)
     const paginado = await Producto.paginate(filtro, opciones)
-    console.log(paginado)
     const resoults = {
         status: 'success',
         payload: paginado.docs,

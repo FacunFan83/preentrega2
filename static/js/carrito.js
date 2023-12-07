@@ -12,7 +12,6 @@ function getCarritoInfo() {
     fetch(rutaFetch + idCarrito)
         .then(resp => resp.json())
         .then(data => {
-            console.log(data)
             for (elem of data.carrito) {
                 const newElement = document.createElement('tr')
                 newElement.innerHTML = `
@@ -47,7 +46,6 @@ function botonera(e) {
     if (action === 'del') {
         // /:cid/producto/:pid
         const rutaDelete = rutaFetch + idCarrito + '/producto/' + id
-        console.log(rutaDelete)
         fetch(rutaDelete, {
             method: 'DELETE'
         })
@@ -64,11 +62,8 @@ function botonera(e) {
     } else if (action === 'upd') {
         renderEditFilds(e, id)
     } else if (action === 'sav') {
-        console.log('guardar')
         const valorUpdate = document.getElementById('edit' + id).value
-        console.log(valorUpdate)
         const rutaUpdate = rutaFetch + idCarrito + '/producto/' + id
-        console.log(rutaUpdate)
         fetch(rutaUpdate, {
             method: 'PUT',
             headers: {
@@ -78,9 +73,9 @@ function botonera(e) {
         })
             .then(resp => resp.json())
             .then(dato => {
-                console.log(dato)
+                window.location.reload()
             })
-        window.location.reload()
+
     }
 }
 

@@ -1,11 +1,6 @@
 // Script de control del cliente
 
 const rutaFetch = 'http://localhost:8080/api/productos/'
-const qryFetch = {
-    limite: 10,
-    pagina: 1,
-    orden: false
-}
 const stringFetch = rutaFetch
 
 prepareFront()
@@ -18,7 +13,6 @@ function getProducts(filtros) {
     fetch(rutaFetch + filtros)
         .then(resp => resp.json())
         .then(data => {
-            console.log(data)
             const targetDOM = document.getElementById('contenedorProductos')
             targetDOM.addEventListener('click', addProduct)
             targetDOM.innerHTML = ''
@@ -47,7 +41,6 @@ function getProducts(filtros) {
                 prevLink: data.prevLink,
                 nextLink: data.nextLink
             }
-            console.log(opcionesPaginacion)
             navSetup(opcionesPaginacion)
         })
 }
@@ -148,7 +141,6 @@ function setFilters(e, page) {
         if (page) { optFiltro.push(`pagina=${page}`) }
     }
     const strFiltro = '?' + optFiltro.join('&')
-    console.log(strFiltro)
     getProducts(strFiltro)
 
 }
@@ -167,7 +159,6 @@ function addProduct(e) {
     })
     .then (resp => resp.json())
     .then (data => {
-        console.log(data)
         if (data.message === 'Producto Agregado') {
             Toastify({
                 text: "Producto agregado",
@@ -180,6 +171,14 @@ function addProduct(e) {
                 text: "Producto actualizado",
                 style: {
                   background: "linear-gradient(to right, #898910, #FAFA08)",
+                }
+              }).showToast();
+
+        } else if (data.message === 'not found') {
+            Toastify({
+                text: "No seleccionó ningun carrito",
+                style: {
+                  background: "linear-gradient(to right, #A30404, #F94646)",
                 }
               }).showToast();
 
